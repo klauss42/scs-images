@@ -1,0 +1,18 @@
+[program:java-service]
+command=/scripts/start_service.sh
+#process_name=%(program_name)s
+# constant is used in event listener
+process_name=java-service
+autostart = true
+autorestart = false
+
+# uncomment to redirect to logfile
+stdout_logfile=/var/log/{{ARTIFACT_ID}}.log
+stdout_logfile_maxbytes=20971520
+stdout_logfile_backups=4
+redirect_stderr=true
+
+[eventlistener:service_exit]
+command=/scripts/kill_supervisor.py
+process_name=service-listener
+events=PROCESS_STATE_EXITED

@@ -1,0 +1,31 @@
+filebeat:
+  prospectors:
+    -
+      paths:
+        - /Users/kschroeder/dev/audi/git/scs-images/elk/local-filebeat/log/service.log
+      input_type: log
+      service: product-service
+      # Scan frequency in seconds.
+      # How often these files should be checked for changes. In case it is set
+      # to 0s, it is done as often as possible. Default: 10s
+      scan_frequency: 10s
+      document_type: java
+
+output:
+  logstash:
+    hosts: ["192.168.99.100:5044"]
+    index: logstash
+    tls:
+      certificate_authorities: ["/Users/kschroeder/dev/audi/git/scs-images/elk/local-filebeat/logstash-beats.crt"]
+      insecure: true
+
+#  console:
+#    pretty: true
+
+shipper:
+  name: test
+
+logging:
+  level: info
+  files:
+    rotateeverybytes: 10485760 # = 10MB

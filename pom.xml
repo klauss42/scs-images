@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.demo.scs.poc.docker</groupId>
+    <artifactId>images</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>scs POC :: Docker Base Images</name>
+    <description></description>
+
+<properties>
+    <java.version>1.8</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <docker.image.prefix>klauss42/</docker.image.prefix>
+    <docker.image.prefix2>scs-poc-</docker.image.prefix2>
+    <docker.host>tcp://localhost:2375</docker.host>
+</properties>
+
+    <modules>
+        <module>java8-base</module>
+        <module>java8-filebeat</module>
+        <module>elk</module>
+        <module>grafana</module>
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.10</version>
+                    <executions>
+                        <execution>
+                            <id>parse-version</id>
+                            <goals>
+                                <goal>parse-version</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.17.1</version>
+                    <configuration>
+                        <logDate>default</logDate>
+                        <autoPull>true</autoPull>
+                        <!--<dockerHost>${docker.host}</dockerHost>-->
+                        <verbose>true</verbose>
+                        <useColor>true</useColor>
+                        <images>
+                            <image>
+                                <!-- Alias name which can used for linking containers during runtime -->
+                                <alias>${project.artifactId}</alias>
+                                <name>
+                                    ${docker.image.prefix}${docker.image.prefix2}${project.artifactId}:${project.version}
+                                </name>
+                                <build>
+                                    <tags>
+                                        <tag>latest</tag>
+                                        <tag>${project.version}</tag>
+                                    </tags>
+                                    <cleanup>false</cleanup>
+                                    <dockerFileDir>${project.basedir}/docker</dockerFileDir>
+                                </build>
+                            </image>
+                        </images>
+                    </configuration>
+
+                    <!-- Hooking into the lifecycle -->
+                    <executions>
+                        <execution>
+                            <id>build</id>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                            <phase>package</phase>
+                            <!--<phase>install</phase>-->
+                        </execution>
+                        <execution>
+                            <id>push-deploy</id>
+                            <goals>
+                                <goal>push</goal>
+                            </goals>
+                            <phase>install</phase>
+                            <!-- As long as we don't have a Nexus to deploy the Maven artifacts to,
+                                we bind 'push' to install phase-->
+                            <!--<phase>deploy</phase>-->
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <!-- special profiles to make setting the docker.host easier -->
+        <profile>
+            <id>socket</id>
+            <properties>
+                <docker.host>unix:///var/run/docker.sock</docker.host>
+            </properties>
+        </profile>
+    </profiles>
+</project>

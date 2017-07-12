@@ -1,0 +1,1 @@
+export ARTIFACT_ID=java-service

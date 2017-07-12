@@ -1,0 +1,6 @@
+.idea
+*.iml
+target
+.filebeat
+grafana/data
+grafana/log

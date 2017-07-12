@@ -1,0 +1,9 @@
+NGUSERNAME [a-zA-Z\.\@\-\+_%]+
+NGUSER %{NGUSERNAME}
+NGINXACCESS %{IPORHOST:clientip} %{NGUSER:ident} %{NGUSER:auth} \[%{HTTPDATE:logtime}\] "%{WORD:verb} %{URIPATHPARAM:request} HTTP/%{NUMBER:httpversion}" %{NUMBER:response} (?:%{NUMBER:bytes}|-) (?:"(?:%{URI:referrer}|-)"|%{QS:referrer}) %{QS:agent}
+
+IPORHOST2 (?:%{IP}|%{HOSTNAME}|_)
+IPORHOST3 (?:%{IP}|%{HOSTNAME}|\[::[0-9]\])
+URIHOST2 %{IPORHOST3}(?::%{POSINT:port})?
+URI2 %{URIPROTO}://(?:%{USER}(?::[^@]*)?@)?(?:%{URIHOST2})?(?:%{URIPATHPARAM})?
+NGINXERROR (?<logtime>%{YEAR}[./-]%{MONTHNUM}[./-]%{MONTHDAY}[- ]%{TIME}) \[%{LOGLEVEL:severity}\] %{POSINT:pid}#%{NUMBER}: %{GREEDYDATA:logmessage}(?:, client: (?<client>%{IP}|%{HOSTNAME}))(?:, server: %{IPORHOST2:server})(?:, request: %{QS:request})?(?:, upstream: \"%{URI2:upstream}\")?(?:, host: \"%{IPORHOST2:host}\")?(?:, referrer: \"%{URI:referrer}\")?
